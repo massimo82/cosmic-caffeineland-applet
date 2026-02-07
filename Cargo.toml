@@ -1,0 +1,18 @@
+[package]
+name = "cosmic-caffeineland"
+version = "0.1.0"
+edition = "2024"
+
+[profile.release]
+strip = true
+lto = "thin"
+
+[dependencies]
+libcosmic = { git = "https://github.com/pop-os/libcosmic", rev = "3b8ad45950f5d23c8550e18e628f6e70b7089d89", default-features = false, features = ["applet", "tokio", "wayland"] }
+wayland-client = "0.31.12"
+wayland-protocols = { version = "0.32.10", features = ["client", "unstable"] }
+tokio = { version = "1.49.0", features = ["full"] }
+zbus = { version = "5.13.2", default-features = false, features = ["blocking-api"] }
+notify-rust = "4.10"
+sys-locale = "0.3"
+lazy_static = "1.4"
