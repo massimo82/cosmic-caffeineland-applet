@@ -1,118 +1,91 @@
-# CosmicCaffeineLand - Applet per COSMIC Desktop
+# CosmicCaffeineLand - Applet for COSMIC Desktop
 
-## Descrizione
-**CosmicCaffeineLand** è un applet per il panel di COSMIC Desktop (System76) che impedisce al sistema di andare in sospensione o spegnere lo schermo, simile all'utility Caffeine per macOS.
+## Description
+**CosmicCaffeineLand** is a panel applet for COSMIC Desktop (System76) that prevents the system from going to sleep or turning off the screen, similar to the Caffeine utility for macOS.
+No timed modes or process-linked features are planned. I prefer useful integrations and having a straightforward applet rather than many niche functions. For example, battery monitoring integration and laptop lid status detection are fundamental.
 
-## Caratteristiche Principali
+## Main Features
 
-### ☕ Funzionalità Core
-- **Inibizione sleep/screensaver**: Usa il protocollo Wayland `idle-inhibit-unstable-v1` per impedire la sospensione del sistema
-- **Toggle semplice**: Click sull'icona per attivare/disattivare
-- **Indicatore visivo**: Icona della tazza ☕ che cambia colore
-  - Colore di accento COSMIC = attivo
-  - Colore normale = disattivo
+### ☕ Core Functionality
+- **Sleep/screensaver inhibition**: Uses the Wayland `idle-inhibit-unstable-v1` protocol to prevent system suspension
+- **Simple toggle**: Click the icon to enable/disable
+- **Visual indicator**: Coffee cup icon ☕ that changes state
+  - Full cup = active
+  - Empty cup = inactive
 
-### 🔋 Protezione Batteria Intelligente
-- **Monitoraggio batteria**: Controlla lo stato della batteria ogni 5 secondi tramite UPower
-- **Disattivazione automatica**: Quando la batteria scende sotto il 10% e il PC non è in carica
-- **Blocco riattivazione**: Non permette di riattivare Caffeine finché la batteria non risale o viene collegato il caricatore
-- **Notifica batteria bassa**: _"Caffeine è stato disattivato e non può essere riattivato, livello batteria troppo basso"_
+### 🔋 Smart Battery Protection
+- **Battery monitoring**: Checks battery status every x seconds via UPower
+- **Automatic deactivation**: When battery drops below 10% and the PC is not charging
+- **Reactivation lock**: Prevents reactivating Caffeine until the battery level rises or the charger is connected
+- **Low battery notification**: _"Caffeine has been disabled and cannot be reactivated, battery level too low"_
 
-### 💻 Rilevamento Chiusura Schermo
-- **Monitoraggio lid**: Controlla lo stato del lid del laptop ogni 2 secondi
-- **Rilevamento hardware**: Funziona solo se l'hardware supporta il rilevamento via ACPI (`/proc/acpi/button/lid`)
-- **Disattivazione automatica**: Quando lo schermo viene fisicamente chiuso, Caffeine si disattiva automaticamente
-- **Notifica chiusura**: _"Caffeine è stato disattivato per aver rilevato la chiusura dello schermo"_
-- **Sicurezza**: Opera solo quando può essere certo dello stato del lid tramite hardware
+### 💻 Screen Closure Detection
+- **Lid monitoring**: Checks laptop lid status every y seconds
+- **Hardware detection**: Only works if the hardware supports detection via ACPI (`/proc/acpi/button/lid`)
+- **Automatic deactivation**: When the screen is physically closed, Caffeine automatically deactivates
+- **Closure notification**: _"Caffeine has been disabled after detecting screen closure"_
+- **Safety**: Only operates when it can be certain of the lid state through hardware
 
-### 🔧 Caratteristiche Tecniche
-- **Nessuna dipendenza da systemd**: Completamente indipendente
-- **Supporto Wayland nativo**: Usa `zwp_idle_inhibit_manager_v1`
-- **Integrazione COSMIC**: Si integra perfettamente con il tema e i colori di accento del desktop
-- **Gestione risorse**: Cleanup automatico delle risorse Wayland alla chiusura
+### 🔧 Technical Features
+- **No systemd dependency**: Completely independent
+- **Native Wayland support**: Uses `zwp_idle_inhibit_manager_v1`
+- **COSMIC integration**: Integrates seamlessly with the desktop's light and dark theme
+- **Resource management**: Automatic cleanup of Wayland resources on shutdown
 
-## Setup del Progetto
+## Project Setup
 
-### Struttura Directory
-```
-cosmic-caffeineland-applet/
-├── Cargo.toml
-└── src/
-    └── main.rs
-```
-
-### Cargo.toml
-```toml
-[package]
-name = "cosmic-caffeineland"
-version = "0.1.0"
-edition = "2021"
-
-[dependencies]
-libcosmic = { git = "https://github.com/pop-os/libcosmic" }
-cosmic-panel-config = "0.1"
-wayland-client = "0.31"
-wayland-protocols-wlr = { version = "0.3", features = ["client"] }
-tokio = { version = "1", features = ["full"] }
-upower_dbus = "0.3"
-zbus = "4.0"
-notify-rust = "4.10"
-```
-
-### Compilazione
+### Build
 ```bash
-# Crea il progetto
+# Create the project
 cargo new cosmic-caffeineland-applet
 cd cosmic-caffeineland-applet
 
-# Copia il codice in src/main.rs
-# Aggiorna Cargo.toml con le dipendenze
+# Copy the code into src/main.rs
+# Update Cargo.toml with dependencies
 
-# Compila
+# Build
 cargo build --release
 
-# L'eseguibile sarà in target/release/cosmic-caffeineland
+# The executable will be in target/release/cosmic-caffeineland
 ```
 
-### Installazione
+### Installation
 ```bash
-# Copia l'eseguibile nella directory appropriata per gli applet COSMIC
-# (la posizione esatta dipende dalla configurazione di COSMIC)
-sudo cp target/release/cosmic-caffeineland /usr/local/bin/
+# Copy the executable to the appropriate directory for COSMIC applets
+# (the exact location depends on COSMIC configuration)
+sudo cp target/release/cosmic-caffeineland /usr/bin/
 ```
 
-## Compatibilità
-- ✅ COSMIC Desktop 1.0 (stabile)
-- ✅ Wayland idle-inhibit protocol (ultima versione stabile)
-- ✅ Qualsiasi sistema Linux con UPower per il monitoraggio batteria
-- ✅ Laptop con supporto ACPI per il rilevamento lid
+## Compatibility
+- ✅ COSMIC Desktop 1.0 (stable)
+- ✅ Wayland idle-inhibit protocol (latest stable version)
+- ✅ Any Linux system with UPower for battery monitoring
+- ✅ Laptops with ACPI support for lid detection
 
-## ID Applicazione
+## Application ID
 `com.system76.CosmicCaffeineLand`
 
-## Dettaglio tecnico importante
-**creare e distruggere continuamente le connessioni D-Bus** causava problemi con gli inhibitor, specialmente per lo screensaver.
+## Important Technical Detail
+**Continuously creating and destroying D-Bus connections** caused problems with inhibitors, especially for the screensaver.
 
-**Le connessioni persistenti** garantiscono che:
-1. La connessione session/system rimane aperta per tutta la vita dell'applicazione
-2. I proxy possono mantenere lo stato correttamente
-3. I cookie/file descriptor degli inhibitor rimangono validi
-4. Non c'è overhead di riconnessione continua
+**Persistent connections** ensure that:
+1. The session/system connection remains open for as long as caffeine stays active
+2. Proxies can maintain state correctly
+3. Inhibitor cookies/file descriptors remain valid
 
-Quindi manteniamo le connessioni come campi della struct principale.
+Therefore, we maintain connections as fields of the main struct.
+To be more precise, the D-Bus connection is opened and closed at each activation/deactivation cycle.
+The main characteristics are:
 
-Ecco il codice modificato per chiudere e riaprire le connessioni D-Bus ad ogni ciclo di attivazione/disattivazione:Le modifiche principali sono:
-
-1. **`init()`**: Le connessioni D-Bus iniziano come `None` invece di essere create all'avvio
+1. **`init()`**: D-Bus connections start as `None` instead of being created at startup
 
 2. **`update_inhibitor_state()`**: 
-   - **All'attivazione** (`is_active = true`): nuove connessioni vengono aperte
-   - **Alla disattivazione** (`is_active = false`): le connessioni vengono chiuse impostando a `None`
+   - **On activation** (`is_active = true`): new connections are opened
+   - **On deactivation** (`is_active = false`): connections are closed by setting to `None`
 
-3. **`Drop`**: Chiusura esplicita delle connessioni anche quando l'applet termina
+3. **`Drop`**: Explicit closure of connections even when the applet terminates
 
-Questo garantisce che:
-- Ad ogni riattivazione vengano stabilite connessioni D-Bus fresche
-- Alla disattivazione le connessioni vengano rilasciate
-- Non ci siano connessioni persistenti inutilizzate quando caffeine è inattivo
-
+This ensures that:
+- Fresh D-Bus connections are established with each reactivation
+- Connections are released upon deactivation
+- There are no unused persistent connections when caffeine is inactive
